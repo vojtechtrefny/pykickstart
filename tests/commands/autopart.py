@@ -368,5 +368,23 @@ class F41_TestCase(F38_TestCase):
         self.assert_parse_error("autopart --passphrase=\"test\" --hw-passphrase=\"testhw\"")
         self.assert_parse_error("autopart --encrypted --passphrase=\"test\" --luks-version=luks1 --hw-passphrase=\"testhw\"")
 
+class F45_TestCase(F41_TestCase):
+    def runTest(self):
+        F41_TestCase.runTest(self)
+        self.assert_parse("autopart --type=stratis",
+                          "autopart --type=stratis\n")
+
+        # these options are not compatible with --type=stratis
+        self.assert_parse_error("autopart --type=stratis --encrypted --luks-version=luks2")
+        self.assert_parse_error("autopart --type=stratis --encrypted --pbkdf=argon2i")
+        self.assert_parse_error("autopart --type=stratis --encrypted --pbkdf-memory=256")
+        self.assert_parse_error("autopart --type=stratis --encrypted --pbkdf-time=100")
+        self.assert_parse_error("autopart --type=stratis --encrypted --pbkdf-iterations=1000")
+        self.assert_parse_error("autopart --type=stratis --encrypted --hw-passphrase=\"testhw\" --luks-version=luks2-hw-opal")
+        self.assert_parse_error("autopart --type=stratis --encrypted --escrowcert=\"http://x/y\"")
+        self.assert_parse_error("autopart --type=stratis --encrypted --backuppassphrase --escrowcert=\"http://x/y\"")
+        self.assert_parse_error("autopart --type=stratis --encrypted --cipher=3-rot13")
+        self.assert_parse_error("autopart --type=stratis --fstype=ext4")
+
 if __name__ == "__main__":
     unittest.main()

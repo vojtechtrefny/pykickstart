@@ -19,8 +19,8 @@
 #
 from pykickstart.base import KickstartCommand
 from pykickstart.version import versionToLongString, RHEL6, RHEL7, RHEL8
-from pykickstart.version import FC3, F9, F12, F16, F17, F18, F20, F21, F26, F29, F38, F41
-from pykickstart.constants import AUTOPART_TYPE_BTRFS, AUTOPART_TYPE_LVM, AUTOPART_TYPE_LVM_THINP, AUTOPART_TYPE_PLAIN
+from pykickstart.version import FC3, F9, F12, F16, F17, F18, F20, F21, F26, F29, F38, F41, F45
+from pykickstart.constants import AUTOPART_TYPE_BTRFS, AUTOPART_TYPE_LVM, AUTOPART_TYPE_LVM_THINP, AUTOPART_TYPE_PLAIN, AUTOPART_TYPE_STRATIS
 from pykickstart.errors import KickstartParseError
 from pykickstart.options import KSOptionParser
 
@@ -663,5 +663,53 @@ class F41_AutoPart(F38_AutoPart):
         if self.hw_passphrase and (not self.encrypted or not self.luks_version.startswith("luks2-")):
             msg = _("hw-passphrase may be specified only with LUKSv2 HW-OPAL encrypted devices")
             raise KickstartParseError(msg, lineno=self.lineno)
+
+        return retval
+
+class F45_AutoPart(F41_AutoPart):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.typeMap["stratis"] = AUTOPART_TYPE_STRATIS
+
+    def _getParser(self):
+        op = super()._getParser()
+        for action in op._actions:
+            if "--type" in action.option_strings:
+                action.help += """
+
+                    .. versionchanged:: %s
+
+                    Partitioning scheme 'stratis' was added.""" % versionToLongString(F45)
+        return op
+
+    def parse(self, args):
+        retval = super().parse(args)
+
+        if self._typeAsStr() == "stratis":
+            incompatible = []
+            if self.luks_version:
+                incompatible.append("--luks-version")
+            if self.pbkdf:
+                incompatible.append("--pbkdf")
+            if self.pbkdf_memory:
+                incompatible.append("--pbkdf-memory")
+            if self.pbkdf_time:
+                incompatible.append("--pbkdf-time")
+            if self.pbkdf_iterations:
+                incompatible.append("--pbkdf-iterations")
+            if self.hw_passphrase:
+                incompatible.append("--hw-passphrase")
+            if self.escrowcert:
+                incompatible.append("--escrowcert")
+            if self.backuppassphrase:
+                incompatible.append("--backuppassphrase")
+            if self.cipher:
+                incompatible.append("--cipher")
+            if self.fstype:
+                incompatible.append("--fstype")
+
+            if incompatible:
+                msg = _("The following options are not compatible with --type=stratis: %s") % ", ".join(incompatible)
+                raise KickstartParseError(msg, lineno=self.lineno)
 
         return retval

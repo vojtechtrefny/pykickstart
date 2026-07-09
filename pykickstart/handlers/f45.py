@@ -28,7 +28,7 @@ class F45Handler(BaseHandler):
         "auth": commands.authconfig.F35_Authconfig, # RemovedCommand
         "authconfig": commands.authconfig.F35_Authconfig, # RemovedCommand
         "authselect": commands.authselect.F28_Authselect,
-        "autopart": commands.autopart.F41_AutoPart,
+        "autopart": commands.autopart.F45_AutoPart,
         "autostep": commands.autostep.F40_Autostep, # RemovedCommand
         "bootc": commands.bootc.F45_Bootc,
         "bootloader": commands.bootloader.F39_Bootloader,
