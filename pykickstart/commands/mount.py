@@ -183,3 +183,8 @@ class F27_Mount(KickstartCommand):
     @property
     def dataClass(self):
         return self.handler.MountData
+
+
+class F45_Mount(F27_Mount):
+    conflictingCommands = ["autopart", "partition", "raid", "volgroup", "logvol", "reqpart",
+                           "stratispool", "stratisfs"]

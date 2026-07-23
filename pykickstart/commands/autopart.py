@@ -667,6 +667,9 @@ class F41_AutoPart(F38_AutoPart):
         return retval
 
 class F45_AutoPart(F41_AutoPart):
+    conflictingCommands = ["partition", "raid", "volgroup", "logvol", "reqpart",
+                           "stratispool", "stratisfs"]
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.typeMap["stratis"] = AUTOPART_TYPE_STRATIS
